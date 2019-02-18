@@ -7,24 +7,19 @@ import "./styles.css";
 function App() {
   const [data, setData] = useState({ hits: [] });
   const [query, setQuery] = useState("redux");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
   const fetchData = async () => {
-    setIsError(false);
-    setIsLoading(true);
-    try {
-      const result = await axios.get(
-        `https://hn.algolia.com/api/v1/search?query=${query}`
-      );
-      setData(result.data);
-    } catch (error) {
-      setIsError(true);
-    }
-    setIsLoading(false);
+    const result = await axios.get(
+      `https://hn.algolia.com/api/v1/search?query=${query}`
+    );
+    setData(result.data);
   };
   useEffect(
     () => {
-      fetchData();
+      try {
+        fetchData();
+      } catch (error) {
+        console.log("error", error);
+      }
     },
     [query]
   );
@@ -35,12 +30,11 @@ function App() {
         value={query}
         onChange={e => setQuery(e.target.value)}
       />
-      {isError && <div>Something went wrong...</div>}
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        data.hits.map(hit => <li key={hit.objectID}>{hit.title}</li>)
-      )}
+      {data.hits.map(hit => (
+        <li key={hit.objectID}>
+          <a href={hit.url}>{hit.title}</a>
+        </li>
+      ))}
     </div>
   );
 }
